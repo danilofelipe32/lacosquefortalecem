@@ -1,3 +1,4 @@
+import { GoogleGenAI } from "@google/genai";
 import { ChatMessage } from '../types';
 
 const SYSTEM_PROMPT = `
@@ -37,28 +38,19 @@ DIRETRIZES:
 
 export const sendMessageToApi = async (message: string): Promise<string> => {
   try {
-    const response = await fetch("https://apifreellm.com/api/chat", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    
+    const response = await ai.models.generateContent({
+      model: 'gemini-3-flash-preview',
+      contents: message,
+      config: {
+        systemInstruction: SYSTEM_PROMPT,
       },
-      body: JSON.stringify({
-        message: `${SYSTEM_PROMPT}\n\nUser: ${message}`
-      })
     });
 
-    if (!response.ok) {
-      throw new Error(`API Error: ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    if (data.status === 'success') {
-      return data.response;
-    } else {
-      throw new Error(data.error || "Unknown API Error");
-    }
+    return response.text || "Não foi possível gerar uma resposta no momento.";
   } catch (error) {
-    console.error(error);
-    return "Desculpe, tive um problema ao processar sua solicitação. Tente novamente mais tarde.";
+    console.error("Gemini API Error:", error);
+    return "Desculpe, tive um problema ao processar sua solicitação. Verifique a configuração da chave de API.";
   }
 };
