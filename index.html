@@ -69,14 +69,15 @@
         // Captura a variável exata configurada na Vercel: VITE_LACOS_API_KEY
         try {
             // @ts-ignore
-            const vercelKey = import.meta.env.VITE_LACOS_API_KEY;
+            // Verificação de segurança: checa se import.meta e import.meta.env existem antes de acessar
+            const vercelKey = (import.meta && import.meta.env) ? import.meta.env.VITE_LACOS_API_KEY : undefined;
             
             if (vercelKey) {
                 // Injeta no local onde o SDK do Google procura
                 window.process.env.API_KEY = vercelKey;
                 console.log("Sistema: Chave API VITE_LACOS_API_KEY carregada com sucesso.");
             } else {
-                console.warn("Sistema: VITE_LACOS_API_KEY não encontrada em import.meta.env");
+                console.warn("Sistema: VITE_LACOS_API_KEY não encontrada ou import.meta.env indefinido");
             }
         } catch (e) {
             console.error("Erro ao carregar variáveis de ambiente:", e);

@@ -5,7 +5,8 @@ import { ChatMessage } from '../types';
 // O SDK requer process.env.API_KEY, mas o Vite usa import.meta.env.VITE_LACOS_API_KEY
 try {
   // @ts-ignore
-  const envKey = import.meta.env.VITE_LACOS_API_KEY;
+  // Acesso seguro ao import.meta.env com verificação de existência
+  const envKey = (import.meta && import.meta.env) ? import.meta.env.VITE_LACOS_API_KEY : undefined;
   
   if (typeof process === 'undefined') {
     // @ts-ignore
