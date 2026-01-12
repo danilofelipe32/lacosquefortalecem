@@ -4,7 +4,7 @@ import { ChatMessage } from '../types';
 // Bloco de inicialização de segurança para garantir a chave API
 try {
   // @ts-ignore
-  const viteKey = import.meta.env.VITE_API_KEY;
+  const viteKey = import.meta.env.LACOS_API_KEY;
   
   // @ts-ignore
   if (typeof process === 'undefined') {
@@ -64,7 +64,7 @@ export const sendMessageToApi = async (message: string): Promise<string> => {
     // @ts-ignore
     if (!process.env.API_KEY) {
       console.error("ERRO CRÍTICO: Chave da API não encontrada.");
-      return "Erro de configuração: A chave da API não foi detectada. Verifique se VITE_API_KEY está configurada no painel da Vercel.";
+      return "Erro de configuração: A chave da API não foi detectada. Verifique se LACOS_API_KEY está configurada no painel da Vercel.";
     }
 
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });

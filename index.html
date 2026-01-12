@@ -68,13 +68,13 @@
         // Captura a chave injetada pelo Vite e a coloca no process.env globalmente
         try {
             // @ts-ignore
-            const envKey = import.meta.env.VITE_API_KEY;
+            const envKey = import.meta.env.LACOS_API_KEY;
             if (envKey) {
                 window.process.env.API_KEY = envKey;
                 console.log("Configuração da API carregada.");
             }
         } catch (e) {
-            console.warn("Aviso: VITE_API_KEY não detectada via import.meta.env");
+            console.warn("Aviso: LACOS_API_KEY não detectada via import.meta.env");
         }
     </script>
 </head>
