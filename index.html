@@ -61,8 +61,21 @@
     }
     </script>
     <script>
-        // Polyfill básico para garantir que process.env exista no navegador e evite crashes
+        // Inicializa o objeto process globalmente
         window.process = window.process || { env: {} };
+    </script>
+    <script type="module">
+        // Captura a chave injetada pelo Vite e a coloca no process.env globalmente
+        try {
+            // @ts-ignore
+            const envKey = import.meta.env.VITE_API_KEY;
+            if (envKey) {
+                window.process.env.API_KEY = envKey;
+                console.log("Configuração da API carregada.");
+            }
+        } catch (e) {
+            console.warn("Aviso: VITE_API_KEY não detectada via import.meta.env");
+        }
     </script>
 </head>
 <body class="font-sans text-slate-600 antialiased selection:bg-psy-200 selection:text-psy-900 bg-slate-50">

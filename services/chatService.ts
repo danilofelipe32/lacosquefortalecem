@@ -1,16 +1,26 @@
 import { GoogleGenAI } from "@google/genai";
 import { ChatMessage } from '../types';
 
-// Configuração de compatibilidade para Vercel/Vite
-// O Vite substitui import.meta.env.VITE_API_KEY pelo valor da variável em tempo de build (ou runtime em dev)
+// Bloco de inicialização de segurança para garantir a chave API
 try {
-  // @ts-ignore - Ignora erro de tipo se import.meta não for reconhecido pelo linter
-  if (!process.env.API_KEY && typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_KEY) {
+  // @ts-ignore
+  const viteKey = import.meta.env.VITE_API_KEY;
+  
+  // @ts-ignore
+  if (typeof process === 'undefined') {
     // @ts-ignore
-    process.env.API_KEY = import.meta.env.VITE_API_KEY;
+    window.process = { env: { API_KEY: viteKey || '' } };
+  } else {
+    // @ts-ignore
+    process.env = process.env || {};
+    // @ts-ignore
+    if (!process.env.API_KEY && viteKey) {
+      // @ts-ignore
+      process.env.API_KEY = viteKey;
+    }
   }
 } catch (e) {
-  console.warn("Ambiente de variáveis não detectado corretamente.");
+  console.warn("Erro ao configurar variáveis de ambiente no chatService:", e);
 }
 
 const SYSTEM_PROMPT = `
@@ -50,10 +60,11 @@ DIRETRIZES:
 
 export const sendMessageToApi = async (message: string): Promise<string> => {
   try {
-    // Verificação de segurança
+    // Verificação final antes de chamar a API
+    // @ts-ignore
     if (!process.env.API_KEY) {
-      console.error("ERRO: API Key não encontrada. Verifique VITE_API_KEY na Vercel.");
-      return "Erro de configuração: A chave da API não foi detectada. Por favor, recarregue a página.";
+      console.error("ERRO CRÍTICO: Chave da API não encontrada.");
+      return "Erro de configuração: A chave da API não foi detectada. Verifique se VITE_API_KEY está configurada no painel da Vercel.";
     }
 
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
