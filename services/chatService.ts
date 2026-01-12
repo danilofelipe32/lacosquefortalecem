@@ -1,26 +1,24 @@
 import { GoogleGenAI } from "@google/genai";
 import { ChatMessage } from '../types';
 
-// Bloco de inicialização de segurança para garantir a chave API
+// GARANTIA DE CONFIGURAÇÃO DA API KEY
+// O SDK requer process.env.API_KEY, mas o Vite usa import.meta.env.VITE_LACOS_API_KEY
 try {
   // @ts-ignore
-  const viteKey = import.meta.env.LACOS_API_KEY;
+  const envKey = import.meta.env.VITE_LACOS_API_KEY;
   
-  // @ts-ignore
   if (typeof process === 'undefined') {
     // @ts-ignore
-    window.process = { env: { API_KEY: viteKey || '' } };
-  } else {
+    window.process = { env: {} };
+  }
+  
+  // Se a chave veio do Vite, forçamos ela no process.env para o SDK usar
+  if (envKey) {
     // @ts-ignore
-    process.env = process.env || {};
-    // @ts-ignore
-    if (!process.env.API_KEY && viteKey) {
-      // @ts-ignore
-      process.env.API_KEY = viteKey;
-    }
+    process.env.API_KEY = envKey;
   }
 } catch (e) {
-  console.warn("Erro ao configurar variáveis de ambiente no chatService:", e);
+  console.warn("Aviso na configuração de ambiente:", e);
 }
 
 const SYSTEM_PROMPT = `
@@ -60,11 +58,11 @@ DIRETRIZES:
 
 export const sendMessageToApi = async (message: string): Promise<string> => {
   try {
-    // Verificação final antes de chamar a API
+    // Verificação rigorosa antes de chamar a API
     // @ts-ignore
     if (!process.env.API_KEY) {
-      console.error("ERRO CRÍTICO: Chave da API não encontrada.");
-      return "Erro de configuração: A chave da API não foi detectada. Verifique se LACOS_API_KEY está configurada no painel da Vercel.";
+      console.error("ERRO CRÍTICO: Chave da API não encontrada em process.env.API_KEY");
+      return "Erro de configuração: A chave da API não foi detectada. Por favor, verifique se a variável 'VITE_LACOS_API_KEY' está correta no painel da Vercel.";
     }
 
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });

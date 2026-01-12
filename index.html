@@ -61,20 +61,25 @@
     }
     </script>
     <script>
-        // Inicializa o objeto process globalmente
+        // Polyfill para garantir que window.process.env exista
         window.process = window.process || { env: {} };
     </script>
     <script type="module">
-        // Captura a chave injetada pelo Vite e a coloca no process.env globalmente
+        // PONTE VITE -> GOOGLE SDK
+        // Captura a variável exata configurada na Vercel: VITE_LACOS_API_KEY
         try {
             // @ts-ignore
-            const envKey = import.meta.env.LACOS_API_KEY;
-            if (envKey) {
-                window.process.env.API_KEY = envKey;
-                console.log("Configuração da API carregada.");
+            const vercelKey = import.meta.env.VITE_LACOS_API_KEY;
+            
+            if (vercelKey) {
+                // Injeta no local onde o SDK do Google procura
+                window.process.env.API_KEY = vercelKey;
+                console.log("Sistema: Chave API VITE_LACOS_API_KEY carregada com sucesso.");
+            } else {
+                console.warn("Sistema: VITE_LACOS_API_KEY não encontrada em import.meta.env");
             }
         } catch (e) {
-            console.warn("Aviso: LACOS_API_KEY não detectada via import.meta.env");
+            console.error("Erro ao carregar variáveis de ambiente:", e);
         }
     </script>
 </head>
