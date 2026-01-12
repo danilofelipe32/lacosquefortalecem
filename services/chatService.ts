@@ -51,6 +51,6 @@ export const sendMessageToApi = async (message: string): Promise<string> => {
     return response.text || "Não foi possível gerar uma resposta no momento.";
   } catch (error) {
     console.error("Gemini API Error:", error);
-    return "Desculpe, tive um problema ao processar sua solicitação. Verifique a configuração da chave de API.";
+    return "Desculpe, tive um problema ao processar sua solicitação.";
   }
 };
