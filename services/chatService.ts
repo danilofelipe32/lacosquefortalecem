@@ -1,6 +1,18 @@
 import { GoogleGenAI } from "@google/genai";
 import { ChatMessage } from '../types';
 
+// Configuração de compatibilidade para Vercel/Vite
+// O Vite substitui import.meta.env.VITE_API_KEY pelo valor da variável em tempo de build (ou runtime em dev)
+try {
+  // @ts-ignore - Ignora erro de tipo se import.meta não for reconhecido pelo linter
+  if (!process.env.API_KEY && typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_API_KEY) {
+    // @ts-ignore
+    process.env.API_KEY = import.meta.env.VITE_API_KEY;
+  }
+} catch (e) {
+  console.warn("Ambiente de variáveis não detectado corretamente.");
+}
+
 const SYSTEM_PROMPT = `
 Você é um assistente virtual especializado no projeto "Laços que Fortalecem", desenvolvido pela psicóloga escolar Kalyane Carvalho (CRP 17/7663) na 2ª DIREC.
 Seu objetivo é responder dúvidas de forma cordial, acolhedora e informativa, com base nos dados reais do projeto.
@@ -38,14 +50,12 @@ DIRETRIZES:
 
 export const sendMessageToApi = async (message: string): Promise<string> => {
   try {
-    // Verificação de segurança para ajudar no diagnóstico de problemas na Vercel
+    // Verificação de segurança
     if (!process.env.API_KEY) {
-      console.error("ERRO CRÍTICO: Chave da API Gemini não encontrada em process.env.API_KEY.");
-      console.error("Certifique-se de que a variável de ambiente VITE_API_KEY está configurada no painel da Vercel.");
-      return "Erro de configuração: A chave da API não foi detectada. Por favor, avise o administrador do sistema.";
+      console.error("ERRO: API Key não encontrada. Verifique VITE_API_KEY na Vercel.");
+      return "Erro de configuração: A chave da API não foi detectada. Por favor, recarregue a página.";
     }
 
-    // Inicialização conforme diretrizes do SDK @google/genai
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
     const response = await ai.models.generateContent({
@@ -59,6 +69,6 @@ export const sendMessageToApi = async (message: string): Promise<string> => {
     return response.text || "Não foi possível gerar uma resposta no momento.";
   } catch (error) {
     console.error("Gemini API Error:", error);
-    return "Desculpe, não consegui processar sua dúvida no momento. Por favor, tente novamente mais tarde.";
+    return "Desculpe, tive um problema técnico ao tentar responder. Tente novamente em alguns instantes.";
   }
 };
