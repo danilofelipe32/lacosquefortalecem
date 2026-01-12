@@ -38,6 +38,14 @@ DIRETRIZES:
 
 export const sendMessageToApi = async (message: string): Promise<string> => {
   try {
+    // Verificação de segurança para ajudar no diagnóstico de problemas na Vercel
+    if (!process.env.API_KEY) {
+      console.error("ERRO CRÍTICO: Chave da API Gemini não encontrada em process.env.API_KEY.");
+      console.error("Certifique-se de que a variável de ambiente VITE_API_KEY está configurada no painel da Vercel.");
+      return "Erro de configuração: A chave da API não foi detectada. Por favor, avise o administrador do sistema.";
+    }
+
+    // Inicialização conforme diretrizes do SDK @google/genai
     const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
     
     const response = await ai.models.generateContent({
@@ -51,6 +59,6 @@ export const sendMessageToApi = async (message: string): Promise<string> => {
     return response.text || "Não foi possível gerar uma resposta no momento.";
   } catch (error) {
     console.error("Gemini API Error:", error);
-    return "Desculpe, tive um problema ao processar sua solicitação.";
+    return "Desculpe, não consegui processar sua dúvida no momento. Por favor, tente novamente mais tarde.";
   }
 };

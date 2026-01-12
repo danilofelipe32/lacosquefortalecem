@@ -61,9 +61,25 @@
     }
     </script>
     <script>
-        // Polyfill essencial para evitar erro "process is not defined" no navegador
-        if (typeof process === 'undefined') {
-            window.process = { env: {} };
+        // Inicializa o objeto process globalmente para evitar erros de "process is not defined"
+        window.process = window.process || { env: {} };
+        window.process.env = window.process.env || {};
+        
+        // Define um valor padrão vazio se não existir, para não quebrar a inicialização
+        if (!window.process.env.API_KEY) {
+            window.process.env.API_KEY = ''; 
+        }
+    </script>
+    <script type="module">
+        // Script de compatibilidade Vercel/Vite
+        // Tenta capturar a VITE_API_KEY injetada pelo build e atribuí-la ao process.env.API_KEY
+        try {
+            if (import.meta.env && import.meta.env.VITE_API_KEY) {
+                window.process.env.API_KEY = import.meta.env.VITE_API_KEY;
+                console.log("Configuração da API Gemini carregada com sucesso.");
+            }
+        } catch (e) {
+            // Silencioso se não estiver em ambiente de módulo/build compatível
         }
     </script>
 </head>
